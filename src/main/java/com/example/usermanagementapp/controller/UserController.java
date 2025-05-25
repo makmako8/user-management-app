@@ -3,6 +3,8 @@ package com.example.usermanagementapp.controller;
 
 
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,9 +13,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.usermanagementapp.entity.Role;
 import com.example.usermanagementapp.entity.User;
 import com.example.usermanagementapp.service.UserService;
-
 
 @Controller
 public class UserController {
@@ -41,11 +43,14 @@ public class UserController {
     // ユーザー登録処理
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("user")User user, Model model) {
-        if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            user.setRoles("USER");
-        }
+
         try {
-        	System.out.println("登録情報: ユーザー名 = " + user.getUsername() + ", パスワード = " + user.getPassword());
+            // ここでロールをセットする（サービス側でやるのが理想ですが）
+            Role userRole = new Role();
+            userRole.setRoleName("ROLE_USER");
+            user.setRoles(Set.of(userRole)); // ← これが正しい
+
+            System.out.println("登録情報: ユーザー名 = " + user.getUsername() + ", パスワード = " + user.getPassword());
             userService.registerUser(user);
         } catch (IllegalArgumentException e) {
             // ユーザー名が既に存在する場合のエラーメッセージ
