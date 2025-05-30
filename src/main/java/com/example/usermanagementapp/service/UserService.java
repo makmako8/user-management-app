@@ -1,4 +1,5 @@
 package com.example.usermanagementapp.service;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,7 +36,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // ユーザーの役割をデフォルトで「USER」に設定
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            user.setRoles("USER");
+        	 user.setRoles(Set.of(userRole)); 
         }
         // ユーザーを保存
         userRepository.save(user);

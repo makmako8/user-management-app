@@ -1,11 +1,9 @@
 package com.example.usermanagementapp.entity;
 
-
-
-
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -17,23 +15,35 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "app_user")
+@Table(name = "APP_USER")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(name = "USERNAME")
     private String username;
+    
+    @Column(name = "PASSWORD")
     private String password;
-    private String role;
+  
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "users_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+            name = "users_roles", // 中間テーブル名
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+        )
     // ゲッターとセッター
+    private Set<Role> roles = new HashSet<>();
+    
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    
+    public void setRoles(Set<Role> roles) {
+    	this.roles = roles; 
+    }
+
     public Long getId() {
         return id;
     }
@@ -57,7 +67,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    public Set<Role> getRoles() { return roles; }
-    public void setRoles(Set<Role> roles) { this.roles = roles; }
+
+ 
 
 }
