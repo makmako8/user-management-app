@@ -3,19 +3,13 @@
 .classpath
 .settings/
 
-# Android Studio / IntelliJ
+# Build
+/target/
+
+# OS・IDE
+*.log
+*.DS_Store
+Thumbs.db
 .idea/
 *.iml
-.gradle/
-build/
-.cxx/
-captures/
-.externalNativeBuild/
-local.properties
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+.vscode/
