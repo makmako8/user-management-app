@@ -13,3 +13,6 @@ Thumbs.db
 .idea/
 *.iml
 .vscode/
+
+/data/*.mv.db
+/data/*.trace.db
