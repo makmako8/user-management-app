@@ -1,18 +1,40 @@
-# Eclipse
-.project
+# ========================
+# OSごとのゴミファイル除外
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Eclipse（Pleiades含む）
+# ========================
 .classpath
+.project
 .settings/
 
-# Build
-/target/
-
-# OS・IDE
-*.log
-*.DS_Store
-Thumbs.db
+# ========================
+# IntelliJ IDEA（使っていなければ不要）
 .idea/
 *.iml
+
+# VS Code
 .vscode/
 
-/data/*.mv.db
-/data/*.trace.db
+# ========================
+# Mavenのビルド成果物
+# ========================
+/target/
+
+# ========================
+# H2 Databaseファイル（ファイルDBはGitで共有しない）
+*.mv.db
+*.trace.db
+
+# ========================
+# アプリ用の一時ログなど
+*.log
+
+# ========================
+# 個人ごとの開発環境差が出る場合（任意）
+# /src/main/resources/application.properties
+# /src/main/resources/application-mac.properties
+# /src/main/resources/application-windows.properties
