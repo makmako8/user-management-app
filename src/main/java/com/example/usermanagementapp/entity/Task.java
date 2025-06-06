@@ -16,6 +16,7 @@ public class Task {
     private Long id;
     private String title;
 
+
     private String status; // 未完了 / 完了
 
     private String description;
