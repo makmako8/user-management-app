@@ -1,0 +1,30 @@
+<!-- src/main/resources/templates/admin/user-list.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ユーザー一覧</title>
+</head>
+<body>
+	<h1>👤 登録ユーザー一覧</h1>
+
+	<table border="1">
+	    <tr>
+	        <th>ID</th>
+	        <th>ユーザー名</th>
+	        <th>有効か？</th>
+	        <th>ロール</th>
+	    </tr>
+	    <tr th:each="user : ${users}">
+	        <td th:text="${user.id}"></td>
+	        <td th:text="${user.username}"></td>
+	        <td th:text="${user.enabled}"></td>
+	        <td>
+	            <span th:each="role : ${user.roles}" th:text="${role.roleName} + ' '"></span>
+	        </td>
+	    </tr>
+	</table>表示します</p>
+    <ul>
+        <li th:each="user : ${users}" th:text="${user.username}">ユーザー名</li>
+    </ul>
+</body>
+</html>

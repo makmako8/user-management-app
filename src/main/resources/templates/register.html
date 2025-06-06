@@ -1,33 +1,23 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー登録</title>
 </head>
 <body>
-    <h2>ユーザー登録</h2>
-    <form action="/register" method="post">
-        <div>
-            <label for="username">ユーザー名</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">パスワード</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <label for="role">役割</label>
-            <input type="text" id="role" name="role">
-        </div>
-        <div>
-            <button type="submit">登録</button>
-        </div>
-    </form>
-	<!-- エラーメッセージを表示 -->
-	<div>
-	    <span th:if="${errorMessage}" th:text="${errorMessage}"></span>
-	</div>
-    <a href="/login">ログインページへ</a>
+    <h2>新規ユーザー登録</h2>
+
+	<form action="#" th:action="@{/register}" th:object="${user}" method="post">
+	    <label>ユーザー名: <input type="text" th:field="*{username}" /></label><br>
+	    <label>パスワード: <input type="password" th:field="*{password}" /></label><br>
+
+	    <label>ロールを選択：</label><br>
+	    <input type="radio" name="selectedRole" value="ROLE_USER" checked> 一般ユーザー<br>
+	    <input type="radio" name="selectedRole" value="ROLE_ADMIN"> 管理者<br>
+
+	    <button type="submit">登録</button>
+	</form>
+
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color:red;"></p>
 </body>
 </html>

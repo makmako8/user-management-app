@@ -1,0 +1,27 @@
+<!-- templates/admin/assign-task.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>課題の送信</title>
+</head>
+<body>
+    <h1>ユーザーに課題を送信</h1>
+
+    <form th:action="@{/admin/tasks/assign}" th:object="${task}" method="post">
+        <label>課題タイトル:</label>
+        <input type="text" th:field="*{title}" required><br>
+
+        <label>課題内容:</label>
+        <textarea th:field="*{description}" required></textarea><br>
+
+        <label>送信先ユーザー:</label>
+        <select name="userId" required>
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
+        </select><br>
+
+        <button type="submit">送信</button>
+    </form>
+
+    <p th:if="${param.success}">✅ 課題が送信されました！</p>
+</body>
+</html>

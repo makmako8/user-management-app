@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>課題一覧</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h2>あなたの課題</h2>
+    <ul>
+        <li th:each="task : ${tasks}">
+            <span th:text="${task.title}"></span> - 
+            <span th:text="${task.status}"></span>
+        </li>
+    </ul>
+    <a th:href="@{/logout}">ログアウト</a>
+</body>
+</html>

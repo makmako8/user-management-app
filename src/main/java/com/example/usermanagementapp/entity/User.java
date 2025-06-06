@@ -1,5 +1,4 @@
 package com.example.usermanagementapp.entity;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,30 +14,40 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "APP_USER")
+@Table(name = "APP_USER") 
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "USERNAME")
+    @Column(name = "USERNAME") 
     private String username;
     
-    @Column(name = "PASSWORD")
+    @Column(name = "PASSWORD") 
     private String password;
+    private boolean enabled;
   
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "users_roles", // 中間テーブル名
+            name = "app_user_roles", // 中間テーブル名
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
         )
     // ゲッターとセッター
+    // 必須：setter と getter
+
     private Set<Role> roles = new HashSet<>();
     
     public Set<Role> getRoles() {
         return roles;
     }
+    public boolean isEnabled() {
+        return enabled;
+    }
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     
     public void setRoles(Set<Role> roles) {
     	this.roles = roles; 

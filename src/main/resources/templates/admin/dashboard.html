@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>管理者ダッシュボード</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>🔐 管理者ダッシュボード</h1>
+
+    <p>ようこそ、管理者様！以下の操作が可能です：</p>
+
+    <ul>
+        <li><a th:href="@{/admin/users}">🧑‍💼 ユーザー一覧を見る</a></li>
+        <li><a th:href="@{/admin/assign-task}">📌 課題を割り当てる</a></li>
+        <li><a th:href="@{/logout}">🚪 ログアウト</a></li>
+    </ul>
+</body>
+</html>

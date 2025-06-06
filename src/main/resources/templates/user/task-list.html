@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>課題一覧</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+    <h1>📋 あなたに割り当てられた課題</h1>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>タイトル</th>
+            <th>内容</th>
+            <th>状態</th>
+        </tr>
+        <tr th:each="task : ${tasks}">
+            <td th:text="${task.id}"></td>
+            <td th:text="${task.title}"></td>
+            <td th:text="${task.description}"></td>
+            <td th:text="${task.completed} ? '✅ 完了' : '🕗 未完了'"></td>
+        </tr>
+    </table>
+
+    <a th:href="@{/home}">ホームに戻る</a>
+</body>
+</html>
