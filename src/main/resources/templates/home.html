@@ -4,10 +4,23 @@
     <title>ホームページ</title>
 </head>
 <body>
-    <h1>ようこそ!</h1>
-	<p>ようこそ [[${#httpServletRequest.remoteUser}]] さん！一般ユーザー画面です。</p>
-    <p>ログインに成功しました。</p>
+	<h1>ようこそ、[[${#httpServletRequest.remoteUser}]] さん！</h1>
+
+	<p>ログインに成功しました。</p>
 	<p>ここにはあなたの学習記録や進捗が表示されます。</p>
-	<a href="/register">登録ページへ</a>
+
+	<ul>
+	    <li><a href="/register">ユーザー登録ページ</a></li>
+	    <li><a href="/user/tasks">タスク一覧ページ</a></li>
+		<li><a href="/user/new">新規タスクページ</a></li>
+	</ul>
+	<!-- 一覧画面から新規登録 -->
+	<a th:href="@{/user/tasks/new}">新規登録へ</a>
+
+	<!-- 新規登録画面から一覧に戻る -->
+	<a th:href="@{/user/tasks}">← 戻る（一覧）</a>
+
+	<!-- どこからでもホームに戻れる -->
+	<a th:href="@{/home}">🏠 ホーム</a>
 </body>
 </html>

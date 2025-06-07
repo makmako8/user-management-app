@@ -10,8 +10,11 @@
         <li th:each="task : ${tasks}">
             <span th:text="${task.title}"></span> - 
             <span th:text="${task.status}"></span>
+			<span th:text="${task.new}"></span>
         </li>
     </ul>
+    <a th:href="@{/user/tasks/new}">新規タスクへ</a>
+	<a th:href="@{/user/tasks}">タスク一覧</a>
     <a th:href="@{/logout}">ログアウト</a>
 </body>
 </html>
