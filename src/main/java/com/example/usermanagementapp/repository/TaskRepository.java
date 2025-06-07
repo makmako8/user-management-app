@@ -10,5 +10,5 @@ import com.example.usermanagementapp.entity.User;
 
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByAssignedTo(User user);
+    List<Task> findByAssignedTo_Username(String username);
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,7 @@ import com.example.usermanagementapp.repository.TaskRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 import com.example.usermanagementapp.service.TaskService;
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/user/tasks")
 public class TaskController {
 
 
@@ -31,7 +32,13 @@ public class TaskController {
     
     @Autowired
     private TaskRepository taskRepository;
-
+    @GetMapping
+    public String listTasks(Authentication authentication, Model model) {
+        String username = authentication.getName();
+        List<Task> tasks = taskService.getTasksAssignedTo(username);
+        model.addAttribute("tasks", tasks);
+        return "user/task-list";
+    }
 
     @GetMapping("/assign")
     public String showAssignForm(Model model) {
@@ -46,10 +53,11 @@ public class TaskController {
         model.addAttribute("tasks", tasks);
         return "user/task-list"; // テンプレートファイル（user/task-list.html）へ
     }
+ // 新規作成フォーム表示
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("task", new Task());
-        return "task-form";
+        return "user/task-form";
     }
     @GetMapping("/tasks")
     public String showTasksForUser(Model model, Authentication authentication) {
@@ -58,13 +66,16 @@ public class TaskController {
         model.addAttribute("tasks", tasks);
         return "user/tasks";
     }
-
-    //	新規タスクの登録処理
+ // 新規タスク登録処理
     @PostMapping
-    public String createTask(@ModelAttribute Task task) {
-        taskRepository.save(task);
-       return "redirect:/user/tasks"; // 一覧ページにリダイレクト
-   }
+    public String createTask(@ModelAttribute("task") Task task, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません: " + username));
+        task.setAssignedTo(user);
+        taskService.assignTaskToUser(task);
+        return "redirect:/user/tasks";
+    }
 
     @PostMapping("/assign")
     public String assignTask(@ModelAttribute Task task, @RequestParam("userId") Long userId) {
