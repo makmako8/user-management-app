@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.entity.Task;
 import com.example.usermanagementapp.repository.TaskRepository;
 import com.example.usermanagementapp.repository.UserRepository;
-
 
 @Controller
 @RequestMapping("/admin")
@@ -54,12 +54,14 @@ public class AdminController {
     }
     
     // タスク割り当て処理
-    @PostMapping("/users/assign-task")
-    public String assignTask(@ModelAttribute Task task, @RequestParam Long userId) {
+    @PostMapping("/assign-task")
+    public String assignTask(@ModelAttribute Task task, @RequestParam Long userId,
+            RedirectAttributes redirectAttributes) {
         AppUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
         task.setAssignedTo(user);
         taskRepository.save(task);
+        redirectAttributes.addFlashAttribute("successMessage", "課題を保存しました！");
         return "redirect:/admin/dashboard";
     }
     
@@ -73,7 +75,7 @@ public class AdminController {
     }
     
     // ユーザー更新処理
-    @PostMapping("/edit/{id}")
+    @PostMapping("/users/edit/{id}")
     public String updateUser(@PathVariable Long id, @ModelAttribute AppUser user) {
         user.setId(id);
         userRepository.save(user);
@@ -81,7 +83,7 @@ public class AdminController {
     }
 
     // ユーザー削除処理
-    @GetMapping("/delete/{id}")
+    @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
         return "redirect:/admin/users";

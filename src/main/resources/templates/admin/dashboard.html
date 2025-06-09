@@ -11,6 +11,9 @@
     <p>ようこそ、管理者様！以下の操作が可能です：</p>
 
 	<ul>
+		<div th:if="${successMessage}" style="color: green;">
+		  <p th:text="${successMessage}"></p>
+		</div>
 	    <li sec:authorize="hasRole('ROLE_ADMIN')">
 	        <a th:href="@{/admin/users}">🧑‍💼 ユーザー一覧を見る</a>
 	    </li>
