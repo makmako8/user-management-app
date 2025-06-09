@@ -1,8 +1,8 @@
 package com.example.usermanagementapp.config;
 
 import java.io.IOException;
+import java.util.Collection;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,17 +16,18 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            String role = authority.getAuthority();
-            if (role.equals("ROLE_ADMIN")) {
-                response.sendRedirect("/admin/dashboard");
-                return;
-            } else if (role.equals("ROLE_USER")) {
-                response.sendRedirect("/user/tasks");
-                return;
-            }
+                                        Authentication authentication) throws IOException {
+      	Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        if (authorities.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
+            response.sendRedirect("/admin/dashboard");
+            return;
         }
+
+        if (authorities.stream().anyMatch(r -> r.getAuthority().equals("ROLE_USER"))) {
+            response.sendRedirect("/user/home");
+            return;
+        }
+
         // ロールがなければデフォルト
         response.sendRedirect("/home");
     }

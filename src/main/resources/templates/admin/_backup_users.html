@@ -1,0 +1,32 @@
+<!-- ✅ users.html - 管理者用ユーザー一覧画面 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー一覧</title>
+</head>
+<body>
+<h1>🧑‍💼 登録ユーザー一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>ユーザー名</th>
+        <th>有効</th>
+        <th>ロール</th>
+    </tr>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.enabled}"></td>
+        <td>
+            <ul>
+                <li th:each="role : ${user.roles}" th:text="${role.roleName}"></li>
+            </ul>
+        </td>
+    </tr>
+</table>
+
+<a th:href="@{/admin/dashboard}">← ダッシュボードに戻る</a>
+</body>
+</html>

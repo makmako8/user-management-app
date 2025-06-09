@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.usermanagementapp.entity.Role;
-import com.example.usermanagementapp.entity.User;
+import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.repository.UserRepository;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
        
-    	User user = userRepository.findByUsername(username)
+    	AppUser user = userRepository.findByUsername(username)
     			.orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません: " + username));
     
     	 Set<Role> roles = user.getRoles();

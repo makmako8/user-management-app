@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.usermanagementapp.dto.UserRequestDTO;
-import com.example.usermanagementapp.entity.User;
+import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.repository.UserRepository;
 import com.example.usermanagementapp.service.UserService;
 
@@ -28,12 +28,12 @@ public class UserApiController {
 
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<AppUser> getAllUsers() {
          return userService.findAllUsers();
     }
     // 単一ユーザーをID指定で取得（オプション機能）
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
+    public AppUser getUserById(@PathVariable Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("指定されたユーザーが見つかりません: ID = " + id));
     }

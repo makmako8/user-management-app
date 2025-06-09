@@ -2,7 +2,6 @@ package com.example.usermanagementapp.entity;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,16 +13,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "APP_USER") 
-public class User {
+@Table(name = "app_user") 
+public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "USERNAME") 
+
     private String username;
     
-    @Column(name = "PASSWORD") 
+
     private String password;
     private boolean enabled;
   

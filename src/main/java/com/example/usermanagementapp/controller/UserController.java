@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.usermanagementapp.entity.User;
+import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.repository.UserRepository;
 import com.example.usermanagementapp.service.UserService;
 @Controller
@@ -32,12 +32,12 @@ public class UserController {
     // ユーザー登録フォーム
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("user", new AppUser());
         return "register";
     }
     @PostMapping("/register")
     public String registerUser(
-        @ModelAttribute("user") User user,
+        @ModelAttribute("user") AppUser user,
         @RequestParam("selectedRole") String selectedRole,
         Model model
     ) {
@@ -55,7 +55,7 @@ public class UserController {
     @GetMapping("/admin/users-alt")
     @PreAuthorize("hasRole('ADMIN')")
     public String showAllUsers(Model model) {
-        List<User> users = userRepository.findAll();
+        List<AppUser> users = userRepository.findAll();
         model.addAttribute("users", users);
         return "user-list";
     }

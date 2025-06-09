@@ -18,6 +18,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Lazy
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private CustomLoginSuccessHandler customLoginSuccessHandler;
     @Bean
     public PasswordEncoder passwordEncoder() {
     	  return new BCryptPasswordEncoder(); 
@@ -44,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .formLogin()
                 .loginPage("/login")
-                .defaultSuccessUrl("/home", true)
+                .successHandler(customLoginSuccessHandler)
             .and()
                 .logout()
                 .permitAll();

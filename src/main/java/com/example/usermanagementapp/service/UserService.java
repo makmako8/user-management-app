@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.usermanagementapp.entity.Role;
-import com.example.usermanagementapp.entity.User;
+import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.repository.RoleRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 
@@ -39,7 +39,7 @@ public class UserService {
 	           userRole.setRoleName("ROLE_USER");
 	           userRole = roleRepository.save(userRole); // ← saveして、永続化されたエンティティを使う
 	      }
-	       User user = new User();
+	       AppUser user = new AppUser();
 	       user.setUsername(username);
 	       user.setPassword(passwordEncoder.encode(rawPassword));
 	       user.setRoles(Set.of(userRole));
@@ -65,7 +65,7 @@ public class UserService {
 	           userRole.setRoleName("ROLE_USER");
 	           userRole = roleRepository.save(userRole); // ← saveして、永続化されたエンティティを使う
 	      }
-	       User user = new User();
+	       AppUser user = new AppUser();
 	       user.setUsername(username);
 	       user.setPassword(passwordEncoder.encode(rawPassword));
 	       user.setRoles(Set.of(userRole));
@@ -78,7 +78,7 @@ public class UserService {
         // ユーザーを保存
         userRepository.save(user);
     }
-    public void registerUserWithRole(User user, String roleName) {
+    public void registerUserWithRole(AppUser user, String roleName) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new IllegalArgumentException("ユーザー名は既に存在します");
         }
@@ -97,7 +97,7 @@ public class UserService {
         userRepository.save(user);
     }
     
-    public List<User> findAllUsers() {
+    public List<AppUser> findAllUsers() {
         return userRepository.findAll();
     }
 

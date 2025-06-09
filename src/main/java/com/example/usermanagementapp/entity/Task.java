@@ -8,7 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 @Entity
-@Table(name = "TASK")
+@Table(name = "task")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,9 @@ public class Task {
     private boolean completed;
     @ManyToOne
     @JoinColumn(name = "assigned_to") // ← DBの列名と一致
-    private User assignedTo;
+    private AppUser assignedTo;
     
-    public Task() {}
 
-    public Task(String description) {
-        this.description = description;
-    }
     public Long getId() {
         return id;
     }
@@ -57,11 +53,11 @@ public class Task {
     public void setDescription(String description) {
         this.description = description;
     }
-    public User getAssignedTo() {
+    public AppUser getAssignedTo() {
         return assignedTo;
     }
 
-    public void setAssignedTo(User assignedTo) {
+    public void setAssignedTo(AppUser assignedTo) {
         this.assignedTo = assignedTo;
     }
     public boolean getCompleted() {

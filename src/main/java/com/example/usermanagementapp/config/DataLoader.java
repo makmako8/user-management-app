@@ -8,7 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.example.usermanagementapp.entity.Role;
-import com.example.usermanagementapp.entity.User;
+import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.repository.RoleRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 
@@ -53,7 +53,7 @@ public class DataLoader implements CommandLineRunner {
           adminRole = roleRepository.findByRoleName("ROLE_ADMIN");
       }    // admin ユーザーが存在しないときだけ作成
       if (userRepository.findByUsername("admin").isEmpty()) {
-         User admin = new User();
+         AppUser admin = new AppUser();
           admin.setUsername("admin");
          admin.setPassword(new BCryptPasswordEncoder().encode("adminpass"));
           admin.setRoles(Set.of(adminRole));
