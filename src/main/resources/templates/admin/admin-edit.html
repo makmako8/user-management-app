@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー編集</title>
+</head>
+<body>
+<h1>✏️ ユーザー編集</h1>
+<form th:action="@{'/admin/users/edit/' + ${user.id}}" th:object="${user}" method="post">
+    <label>ID: <span th:text="${user.id}"></span></label><br>
+    <label>ユーザー名: <input type="text" th:field="*{username}" /></label><br>
+    <label>有効: <input type="checkbox" th:field="*{enabled}" /></label><br>
+    <button type="submit">保存</button>
+</form>
+<a th:href="@{/admin/users}">← 戻る</a>
+</body>
+</html>

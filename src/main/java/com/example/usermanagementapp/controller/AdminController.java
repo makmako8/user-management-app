@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,8 +17,10 @@ import com.example.usermanagementapp.entity.Task;
 import com.example.usermanagementapp.repository.TaskRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 
+
 @Controller
 @RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 	
     private final UserRepository userRepository;
@@ -28,34 +31,60 @@ public class AdminController {
         this.taskRepository = taskRepository;
     }
 
+    // 管理者ダッシュボード
+    @GetMapping("/dashboard")
+    public String showAdminDashboard() {
+        return "admin/dashboard"; // templates/admin-dashboard.html を返す
+    }
+    
+    // ユーザー一覧表示
     @GetMapping("/users")
-    @PreAuthorize("hasRole('ADMIN')")
     public String showUserList(Model model) {
         List<AppUser> users = userRepository.findAll();
         model.addAttribute("users", users);
         return "admin/user-list"; // resources/templates/admin/user-list.html
     }
-    @GetMapping("/dashboard")
-    @PreAuthorize("hasRole('ADMIN')") // 管理者だけアクセス可能
-    public String showAdminDashboard() {
-        return "admin/dashboard"; // templates/admin-dashboard.html を返す
-    }
-
+    
+    // タスク割り当てフォーム表示
     @GetMapping("/assign-task")
-    @PreAuthorize("hasRole('ADMIN')")
     public String showAssignTaskForm(Model model) {
         model.addAttribute("task", new Task());
         model.addAttribute("users", userRepository.findAll());
         return "admin/assign-task";
     }
-    @PostMapping("/assign-task")
-    @PreAuthorize("hasRole('ADMIN')")
+    
+    // タスク割り当て処理
+    @PostMapping("/users/assign-task")
     public String assignTask(@ModelAttribute Task task, @RequestParam Long userId) {
         AppUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
         task.setAssignedTo(user);
         taskRepository.save(task);
         return "redirect:/admin/dashboard";
+    }
+    
+    // ユーザー編集フォーム表示
+    @GetMapping("/users/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        AppUser user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ユーザーが見つかりません: " + id));
+        model.addAttribute("user", user);
+        return "admin/user-edit";
+    }
+    
+    // ユーザー更新処理
+    @PostMapping("/edit/{id}")
+    public String updateUser(@PathVariable Long id, @ModelAttribute AppUser user) {
+        user.setId(id);
+        userRepository.save(user);
+        return "redirect:/admin/users";
+    }
+
+    // ユーザー削除処理
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        return "redirect:/admin/users";
     }
 
 }

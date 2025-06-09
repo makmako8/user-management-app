@@ -1,32 +1,21 @@
-<!-- ✅ users.html - 管理者用ユーザー一覧画面 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ユーザー一覧</title>
+    <title>課題割り当て</title>
 </head>
 <body>
-<h1>🧑‍💼 登録ユーザー一覧</h1>
-
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>ユーザー名</th>
-        <th>有効</th>
-        <th>ロール</th>
-    </tr>
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.username}"></td>
-        <td th:text="${user.enabled}"></td>
-        <td>
-            <ul>
-                <li th:each="role : ${user.roles}" th:text="${role.roleName}"></li>
-            </ul>
-        </td>
-    </tr>
-</table>
-
+<h1>📌 課題を割り当てる</h1>
+<form method="post" th:action="@{/admin/assign-task}" th:object="${task}">
+    <label>タイトル: <input type="text" th:field="*{title}" /></label><br>
+    <label>ステータス: <input type="text" th:field="*{status}" /></label><br>
+    <label>対象ユーザー:
+        <select name="userId">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
+        </select>
+    </label><br>
+    <button type="submit">割り当て</button>
+</form>
 <a th:href="@{/admin/dashboard}">← ダッシュボードに戻る</a>
 </body>
 </html>
