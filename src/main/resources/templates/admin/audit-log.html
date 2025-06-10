@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>監査ログ一覧</title>
+</head>
+<body>
+<h1>📋 ロール変更監査ログ</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>日時</th>
+            <th>ユーザー名</th>
+            <th>操作</th>
+            <th>ロール名</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="log : ${auditLogs}">
+            <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${log.username}"></td>
+            <td th:text="${log.action}"></td>
+            <td th:text="${log.roleName}"></td>
+        </tr>
+    </tbody>
+</table>
+
+<a th:href="@{/admin/dashboard}">← ダッシュボードに戻る</a>
+</body>
+</html>
