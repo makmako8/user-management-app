@@ -83,10 +83,17 @@ public class AdminController {
     public String updateUser(@PathVariable Long id, @ModelAttribute AppUser formUser) {
         AppUser existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
-        formUser.setRoles(existingUser.getRoles());
+        // ロール変更のログ出力
+        System.out.println("✏️ 編集ユーザー: " + formUser.getUsername());
+        System.out.println("🛡️ 編集前ロール:");
+        existingUser.getRoles().forEach(role -> System.out.println(" - " + role.getRoleName()));
+        
+        System.out.println("🛡️ 編集後ロール:");
+        formUser.getRoles().forEach(role -> System.out.println(" + " + role.getRoleName()));
+        
+
+        formUser.setId(id);
         userRepository.save(formUser);
-        System.out.println("編集ユーザー: " + formUser.getUsername());
-        formUser.getRoles().forEach(role -> System.out.println("🛡️ 付与ロール: " + role.getRoleName()));
         return "redirect:/admin/users";
     }
 
