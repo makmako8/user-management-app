@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.entity.Task;
+import com.example.usermanagementapp.repository.RoleRepository;
 import com.example.usermanagementapp.repository.TaskRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 
@@ -25,10 +26,12 @@ public class AdminController {
 	
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final RoleRepository roleRepository;
     
-    public AdminController(UserRepository userRepository, TaskRepository taskRepository) {
+    public AdminController(UserRepository userRepository, TaskRepository taskRepository, RoleRepository roleRepositor) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.roleRepository = roleRepositor;
     }
 
     // 管理者ダッシュボード
@@ -71,6 +74,7 @@ public class AdminController {
         AppUser user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ユーザーが見つかりません: " + id));
         model.addAttribute("user", user);
+        model.addAttribute("allRoles", roleRepository.findAll());
         return "admin/user-edit";
     }
     
@@ -81,6 +85,8 @@ public class AdminController {
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
         formUser.setRoles(existingUser.getRoles());
         userRepository.save(formUser);
+        System.out.println("編集ユーザー: " + formUser.getUsername());
+        formUser.getRoles().forEach(role -> System.out.println("🛡️ 付与ロール: " + role.getRoleName()));
         return "redirect:/admin/users";
     }
 
