@@ -3,11 +3,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.usermanagementapp.entity.Role;
 import com.example.usermanagementapp.entity.AppUser;
+import com.example.usermanagementapp.entity.Role;
 import com.example.usermanagementapp.repository.RoleRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 
@@ -99,6 +100,10 @@ public class UserService {
     
     public List<AppUser> findAllUsers() {
         return userRepository.findAll();
+    }
+    public AppUser getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません: " + username));
     }
 
 }

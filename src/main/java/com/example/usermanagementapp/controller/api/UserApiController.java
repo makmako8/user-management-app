@@ -1,6 +1,4 @@
 package com.example.usermanagementapp.controller.api;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,10 +25,7 @@ public class UserApiController {
     
 
 
-    @GetMapping
-    public List<AppUser> getAllUsers() {
-         return userService.findAllUsers();
-    }
+
     // 単一ユーザーをID指定で取得（オプション機能）
     @GetMapping("/{id}")
     public AppUser getUserById(@PathVariable Long id) {

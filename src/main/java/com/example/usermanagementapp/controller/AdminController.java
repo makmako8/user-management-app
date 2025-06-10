@@ -76,9 +76,11 @@ public class AdminController {
     
     // ユーザー更新処理
     @PostMapping("/users/edit/{id}")
-    public String updateUser(@PathVariable Long id, @ModelAttribute AppUser user) {
-        user.setId(id);
-        userRepository.save(user);
+    public String updateUser(@PathVariable Long id, @ModelAttribute AppUser formUser) {
+        AppUser existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+        formUser.setRoles(existingUser.getRoles());
+        userRepository.save(formUser);
         return "redirect:/admin/users";
     }
 
