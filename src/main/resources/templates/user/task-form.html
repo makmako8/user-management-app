@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>タスク追加</title>
+    <title>タスク編集</title>
+    <meta charset="UTF-8" />
 </head>
 <body>
-	<h2>新しいタスクを作成</h2>
+<h2>タスク編集</h2>
 
-	<form th:action="@{/user/tasks/new}" th:object="${task}" method="post">
-	    <label>タイトル: <input type="text" th:field="*{title}" required /></label><br>
-		<label>ステイタス: <input type="text" th:field="*{status}"></input></label><br>
-	    <label>説明: <textarea th:field="*{description}"></textarea></label><br>
-	    <label>完了フラグ: <input type="checkbox" th:field="*{completed}" /></label><br>
-	    <button type="submit">登録</button>
-	</form>
+<form th:action="@{'/user/tasks/edit/' + ${task.id}}" th:object="${task}" method="post">
+    <input type="hidden" th:field="*{id}" />
+    
+    <label>タイトル:</label>
+    <input type="text" th:field="*{title}" /><br/>
 
-	<p><a th:href="@{/user/tasks}">戻る</a></p>
+    <label>説明:</label>
+    <textarea th:field="*{description}"></textarea><br/>
+
+    <label>完了:</label>
+    <input type="checkbox" th:field="*{completed}" /><br/>
+
+    <button type="submit">保存</button>
+</form>
+
+<a th:href="@{/user/tasks}">← 戻る（一覧）</a>
 </body>
 </html>

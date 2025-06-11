@@ -99,21 +99,23 @@ public class TaskController {
     public String updateTask(@PathVariable Long id,
                              @ModelAttribute("task") Task updatedTask,
                              Authentication authentication) {
+    	   System.out.println("📝 編集内容: " + updatedTask); // ← これで値確認
+    	  
+    	   Task task = taskService.findById(id)
+    		        .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
 
-        Task existingTask = taskService.findById(id)
-            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+    		    String username = authentication.getName();
+    		    if (!task.getAssignedTo().getUsername().equals(username)) {
+    		        return "redirect:/user/tasks?error=unauthorized";
+    		    }
 
-        String currentUsername = authentication.getName();
-        if (!existingTask.getAssignedTo().getUsername().equals(currentUsername)) {
-            return "redirect:/user/tasks?error=not_authorized";
-        }
 
-        // 必要なフィールドを更新（IDや作成者はそのまま）
-        existingTask.setTitle(updatedTask.getTitle());
-        existingTask.setDescription(updatedTask.getDescription());
-        existingTask.setCompleted(updatedTask.isCompleted());
+    		    // 更新する内容のみセット
+    		    task.setTitle(updatedTask.getTitle());
+    		    task.setDescription(updatedTask.getDescription());
+    		    task.setCompleted(updatedTask.isCompleted());
 
-        taskService.assignTaskToUser(existingTask);
+        taskService.assignTaskToUser(task);
         return "redirect:/user/tasks";
     }
     @GetMapping("/user/tasks/delete/{id}")
@@ -144,6 +146,5 @@ public class TaskController {
         taskService.assignTaskToUser(task);
         return "redirect:/user/tasks";
     }
-
 
 }
