@@ -19,10 +19,10 @@
         <tr th:each="task : ${tasks}">
             <td th:text="${task.id}"></td>
             <td th:text="${task.title}">Title</td>
-            <td th:text="${task.description}">Description</td>
-			<td th:text="${task.assignedTo}">担当者</td>
-			<td th:text="${task.createdBy}">作成者</td>
-            <td th:text="${task.completed} ? '✅ 完了' : '🕗 未完了'"></td>
+            <td th:text="${task.description}">説明</td>
+			<td th:text="${task.assignedTo.username}">担当者</td>
+			<td th:text="${task.createdBy.username}">作成者</td>
+            <td th:text="${task.completed ? '✅' : '⏳'}"></td>
 			<td>
 			    <a th:href="@{/user/tasks/edit/{id}(id=${task.id})}">編集</a>
 			     |
