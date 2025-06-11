@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザーの課題一覧</title>
+</head>
+<body>
+<h2 th:text="'ユーザー: ' + ${user.username} + ' のタスク一覧'"></h2>
+
+
+<table>
+    <thead>
+        <tr>
+            <th>タイトル</th>
+            <th>詳細</th>
+            <th>作成者</th>
+            <th>完了</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="task : ${tasks}">
+            <td th:text="${task.title}"></td>
+            <td th:text="${task.description}"></td>
+            <td th:text="${task.createdBy.username}"></td>
+            <td th:text="${task.completed ? '✅' : '⏳'}"></td>
+        </tr>
+    </tbody>
+</table>
+
+    <p><a th:href="@{/admin/users}">← ユーザー一覧に戻る</a></p>
+</body>
+</html>

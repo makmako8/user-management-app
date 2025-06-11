@@ -24,6 +24,9 @@ public class Task {
     @JoinColumn(name = "assigned_to") // ← DBの列名と一致
     private AppUser assignedTo;
     
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private AppUser createdBy;
 
     public Long getId() {
         return id;
@@ -60,12 +63,19 @@ public class Task {
     public void setAssignedTo(AppUser assignedTo) {
         this.assignedTo = assignedTo;
     }
-    public boolean getCompleted() {
+    public boolean isCompleted() {
         return completed;
     }
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+    public AppUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(AppUser createdBy) {
+        this.createdBy = createdBy;
     }
 
     // getter, setter（後で追加してもOK）

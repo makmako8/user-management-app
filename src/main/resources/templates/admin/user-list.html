@@ -19,6 +19,15 @@
 	        <td th:text="${user.id}"></td>
 	        <td th:text="${user.username}"></td>
 	        <td th:text="${user.enabled}"></td>
+			<td>
+				<td th:text="${user.enabled}"></td>
+			</td>
+			<td>
+			    <a th:href="@{'/admin/users/' + ${user.id} + '/tasks'}">📋 すべてのタスク</a><br>
+			    <a th:href="@{'/admin/users/' + ${user.id} + '/tasks?filter=completed'}">✅ 完了タスク</a><br>
+			    <a th:href="@{'/admin/users/' + ${user.id} + '/tasks?filter=incomplete'}">🕗 未完了タスク</a>
+			</td>
+
 	        <td>
 				<ul>
 				     <li th:each="role : ${user.roles}" th:text="${role.roleName}"></li>
@@ -27,6 +36,12 @@
 			<td>
 			    <a th:href="@{'/admin/users/edit/' + ${user.id}}">✏️ 編集</a> |
 			    <a th:href="@{'/admin/users/delete/' + ${user.id}}" onclick="return confirm('本当に削除しますか？')">🗑️ 削除</a>
+			</td>
+			<td>
+				
+			</td>
+			<td>
+				<a th:href="@{'/admin/users/' + ${user.id} + '/tasks'}">📋 タスク一覧</a>
 			</td>
 	    </tr>
 	</table>

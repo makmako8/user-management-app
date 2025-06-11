@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,16 +26,19 @@ import com.example.usermanagementapp.repository.AuditLogRepository;
 import com.example.usermanagementapp.repository.RoleRepository;
 import com.example.usermanagementapp.repository.TaskRepository;
 import com.example.usermanagementapp.repository.UserRepository;
+import com.example.usermanagementapp.service.TaskService;
 
 @Controller
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-	
+	@Autowired
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final RoleRepository roleRepository;
     private final AuditLogRepository auditLogRepository;
+    @Autowired
+    private TaskService taskService;
     
     public AdminController(UserRepository userRepository, TaskRepository taskRepository, RoleRepository roleRepositor, AuditLogRepository auditLogRepository) {
         this.userRepository = userRepository;
@@ -47,11 +52,23 @@ public class AdminController {
     public String showAdminDashboard() {
         return "admin/dashboard"; // templates/admin-dashboard.html を返す
     }
-    @GetMapping("/audit-log")
-    public String showAuditLog(Model model) {
-        model.addAttribute("auditLogs", auditLogRepository.findAll(Sort.by(Sort.Direction.DESC, "timestamp")));
-        return "admin/audit-log";
+    @PostMapping("/admin/save-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String saveEncodedPassword(@RequestParam String username,
+                                      @RequestParam String hashedPassword,
+                                      RedirectAttributes redirectAttributes) {
+        AppUser user = new AppUser();
+        user.setUsername(username);
+        user.setPassword(hashedPassword);
+        user.setEnabled(true);
+        user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER"))); // または ADMINも可
+        userRepository.save(user);
+
+        redirectAttributes.addFlashAttribute("successMessage", username + " を保存しました！");
+        return "redirect:/admin/encode-password";
     }
+
+
     // ユーザー一覧表示
     @GetMapping("/users")
     public String showUserList(Model model) {
@@ -60,25 +77,30 @@ public class AdminController {
         return "admin/user-list"; // resources/templates/admin/user-list.html
     }
     
-    // タスク割り当てフォーム表示
-    @GetMapping("/assign-task")
-    public String showAssignTaskForm(Model model) {
+    // GET: タスク割り当てフォーム表示（任意）
+    @GetMapping("/assign")
+    public String showAssignForm(Model model) {
         model.addAttribute("task", new Task());
         model.addAttribute("users", userRepository.findAll());
         return "admin/assign-task";
     }
     
-    // タスク割り当て処理
-    @PostMapping("/assign-task")
-    public String assignTask(@ModelAttribute Task task, @RequestParam Long userId,
-            RedirectAttributes redirectAttributes) {
-        AppUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
-        task.setAssignedTo(user);
-        taskRepository.save(task);
-        redirectAttributes.addFlashAttribute("successMessage", "課題を保存しました！");
-        return "redirect:/admin/dashboard";
+    // POST: 他のユーザーにタスクを割り当て
+    @PostMapping("/assign")
+    public String assignTask(@ModelAttribute Task task, @RequestParam("userId") Long userId, Authentication authentication) {
+        AppUser assignedUser = userRepository.findById(userId).orElse(null);
+        if (assignedUser != null) {
+            String creatorUsername = authentication.getName();
+            AppUser creator = userRepository.findByUsername(creatorUsername)
+                .orElseThrow(() -> new UsernameNotFoundException("作成者が見つかりません: " + creatorUsername));
+            task.setAssignedTo(assignedUser);
+            task.setCreatedBy(creator);  // 作成者を明示的に設定
+            task.setCompleted(false);
+            taskService.assignTaskToUser(task); 
+        }
+       return "redirect:/admin/tasks/assign?success";
     }
+  
     
     // ユーザー編集フォーム表示
     @GetMapping("/users/edit/{id}")
@@ -95,20 +117,25 @@ public class AdminController {
     public String updateUser(@PathVariable Long id, @ModelAttribute AppUser formUser) {
         AppUser existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
-        	Set<String> beforeRoles = existingUser.getRoles().stream()
-                .map(role -> role.getRoleName())
-                .collect(Collectors.toSet());
+        // パスワードが空の場合は、既存パスワードを維持
+        if (formUser.getPassword() == null || formUser.getPassword().isBlank()) {
+            formUser.setPassword(existingUser.getPassword());
+        }
+        // ロールの差分をチェック
+        Set<String> beforeRoles = existingUser.getRoles() != null
+            ? existingUser.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet())
+            : new HashSet<>();
 
-            Set<String> afterRoles = formUser.getRoles().stream()
-                .map(role -> role.getRoleName())
-                .collect(Collectors.toSet());
-
-            // 差分出力
-            Set<String> addedRoles = new HashSet<>(afterRoles);
-            addedRoles.removeAll(beforeRoles);
-            Set<String> removedRoles = new HashSet<>(beforeRoles);
-            removedRoles.removeAll(afterRoles);
-
+        Set<String> afterRoles = formUser.getRoles() != null
+            ? formUser.getRoles().stream().map(r -> r.getRoleName()).collect(Collectors.toSet())
+            : new HashSet<>();
+        
+        	// 差分出力
+	        Set<String> addedRoles = new HashSet<>(afterRoles);
+	        addedRoles.removeAll(beforeRoles);
+	        Set<String> removedRoles = new HashSet<>(beforeRoles);
+	        removedRoles.removeAll(afterRoles);
+	        // ログ出力＋監査ログ保存
             System.out.println("✏️ 編集ユーザー: " + formUser.getUsername());
             for (String added : addedRoles) {
                 System.out.println("➕ 追加されたロール: " + added);
@@ -125,11 +152,7 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // ユーザー削除処理
-    @GetMapping("/users/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
-        userRepository.deleteById(id);
-        return "redirect:/admin/users";
-    }
 
+    
+    
 }

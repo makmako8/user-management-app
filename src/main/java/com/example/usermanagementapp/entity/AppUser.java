@@ -2,6 +2,8 @@ package com.example.usermanagementapp.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -10,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -19,7 +22,7 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-
+    @Column(unique = true)
     private String username;
     
 
@@ -36,6 +39,8 @@ public class AppUser {
     // 必須：setter と getter
 
     private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Task> taskss = new HashSet<>();
     
     public Set<Role> getRoles() {
         return roles;

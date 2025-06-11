@@ -34,7 +34,7 @@ public class AuditLog {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getActione() {
+    public String getAction() {
         return action;
     }
 
@@ -55,11 +55,11 @@ public class AuditLog {
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
-    public LocalDateTime getTimeStamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimeStamp(LocalDateTime timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
     

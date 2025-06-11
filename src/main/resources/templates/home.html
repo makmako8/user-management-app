@@ -12,10 +12,12 @@
 	<ul>
 	    <li><a href="/register">ユーザー登録ページ</a></li>
 	    <li><a href="/user/tasks">タスク一覧ページ</a></li>
-		<li><a href="/user/new">新規タスクページ</a></li>
+		<li><a th:href="@{/user/tasks/new}">新しいタスクを作成</a></li>
 	</ul>
 	<!-- 一覧画面から新規登録 -->
+	<tr th:each="task : ${tasks}">
 	<a th:href="@{/user/tasks/new}">新規登録へ</a>
+	<a th:href="@{/user/tasks/new}">＋ 新しいタスクを作成</a>
 
 	<!-- 新規登録画面から一覧に戻る -->
 	<a th:href="@{/user/tasks}">← 戻る（一覧）</a>
