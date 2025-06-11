@@ -23,12 +23,13 @@
 			<td th:text="${task.assignedTo.username}">担当者</td>
 			<td th:text="${task.createdBy.username}">作成者</td>
             <td th:text="${task.completed ? '✅' : '⏳'}"></td>
-			<td>
-			    <a th:href="@{/user/tasks/edit/{id}(id=${task.id})}">編集</a>
-			     |
-			    <a th:href="@{/user/tasks/delete/{id}(id=${task.id})}"
-			       onclick="return confirm('本当に削除しますか？');">削除</a>
-			</td>
+				<td>
+				    <a th:href="@{/user/tasks/edit/{id}(id=${task.id})}">編集</a>
+				     |
+				    <a th:href="@{/user/tasks/delete/{id}(id=${task.id})}"
+				       onclick="return confirm('本当に削除しますか？');">削除</a>
+				</td>
+			</tr>
         </tr>
     </table>
 

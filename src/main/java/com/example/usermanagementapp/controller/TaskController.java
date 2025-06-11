@@ -81,26 +81,54 @@ public class TaskController {
     }
 
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    @GetMapping("/user/tasks/edit/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public String showEditForm(@PathVariable Long id, Model model, Authentication authentication) {
         Task task = taskService.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("タスクが見つかりません: ID = " + id));
+        String currentUsername = authentication.getName();
+        if (!task.getAssignedTo().getUsername().equals(currentUsername)) {
+            return "redirect:/user/tasks?error=not_authorized";
+        }
         model.addAttribute("task", task);
         return "user/task-form"; // フォームを使いまわし
     }
+    
+    @PostMapping("/user/tasks/edit/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public String updateTask(@PathVariable Long id,
+                             @ModelAttribute("task") Task updatedTask,
+                             Authentication authentication) {
 
+        Task existingTask = taskService.findById(id)
+            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
 
-    @PostMapping("/edit/{id}")
-    public String updateTask(@PathVariable Long id, @ModelAttribute("task") Task updatedTask) {
-        taskService.updateTask(id, updatedTask);
+        String currentUsername = authentication.getName();
+        if (!existingTask.getAssignedTo().getUsername().equals(currentUsername)) {
+            return "redirect:/user/tasks?error=not_authorized";
+        }
+
+        // 必要なフィールドを更新（IDや作成者はそのまま）
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setCompleted(updatedTask.isCompleted());
+
+        taskService.assignTaskToUser(existingTask);
         return "redirect:/user/tasks";
     }
+    @GetMapping("/user/tasks/delete/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public String deleteTask(@PathVariable Long id, Authentication authentication) {
+        Task task = taskService.findById(id)
+            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
 
-    @GetMapping("/delete/{id}")
-    public String deleteTask(@PathVariable Long id) {
+        String currentUsername = authentication.getName();
+        if (!task.getAssignedTo().getUsername().equals(currentUsername)) {
+            return "redirect:/user/tasks?error=not_authorized";
+        }
+
         taskService.deleteTask(id);
         return "redirect:/user/tasks";
     }
-
 
 }
