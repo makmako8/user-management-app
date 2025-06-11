@@ -10,5 +10,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	List<Task> findByAssignedTo(AppUser assignedTo);
     List<Task> findByAssignedToAndCompletedTrue(AppUser user);
     List<Task> findByAssignedToAndCompletedFalse(AppUser user);
+    List<Task> findByAssignedToAndTitleContaining(AppUser user, String keyword);
+    List<Task> findByAssignedToAndCompletedTrueAndTitleContaining(AppUser user, String keyword);
+    List<Task> findByAssignedToAndCompletedFalseAndTitleContaining(AppUser user, String keyword);
     long countByAssignedToAndCompletedFalse(AppUser assignedTo);
 }

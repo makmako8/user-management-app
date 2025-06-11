@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.entity.Task;
@@ -38,13 +39,7 @@ public class TaskController {
         model.addAttribute("users", userRepository.findAll());
         return "admin/assign-task"; // templates/admin/assign-task.html
     }
-    @GetMapping("/user/tasks")
-        public String showTasksForCurrentUser(Authentication authentication, Model model) {
-        String username = authentication.getName();
-        List<Task> tasks = taskService.getTasksAssignedTo(username);
-        model.addAttribute("tasks", tasks);
-        return "user/task-list";
-    }
+
 
 
  // 新規作成フォーム表示
@@ -145,6 +140,34 @@ public class TaskController {
         task.setCompleted(!task.isCompleted());
         taskService.assignTaskToUser(task);
         return "redirect:/user/tasks";
+    }
+    @GetMapping("/user/tasks")
+    @PreAuthorize("hasRole('USER')")
+    public String showFilteredTasks(@RequestParam(value = "keyword", required = false) String keyword,
+                                    @RequestParam(value = "status", required = false) String status,
+                                    Authentication authentication,
+                                    Model model) {
+
+        String username = authentication.getName();
+        AppUser user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません"));
+
+        List<Task> tasks;
+
+        // 状態とキーワードに応じて検索
+        if ("completed".equals(status)) {
+            tasks = taskRepository.findByAssignedToAndCompletedTrueAndTitleContaining(user, keyword != null ? keyword : "");
+        } else if ("incomplete".equals(status)) {
+            tasks = taskRepository.findByAssignedToAndCompletedFalseAndTitleContaining(user, keyword != null ? keyword : "");
+        } else {
+            tasks = taskRepository.findByAssignedToAndTitleContaining(user, keyword != null ? keyword : "");
+        }
+
+        model.addAttribute("tasks", tasks);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+
+        return "user/task-list";
     }
 
 }
