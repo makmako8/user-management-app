@@ -130,5 +130,20 @@ public class TaskController {
         taskService.deleteTask(id);
         return "redirect:/user/tasks";
     }
+    @PostMapping("/user/tasks/toggle/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public String toggleTaskCompletion(@PathVariable Long id, Authentication authentication) {
+        Task task = taskService.findById(id)
+            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+
+        if (!task.getAssignedTo().getUsername().equals(authentication.getName())) {
+            return "redirect:/user/tasks?error=not_authorized";
+        }
+
+        task.setCompleted(!task.isCompleted());
+        taskService.assignTaskToUser(task);
+        return "redirect:/user/tasks";
+    }
+
 
 }

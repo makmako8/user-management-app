@@ -22,7 +22,11 @@
             <td th:text="${task.description}">説明</td>
 			<td th:text="${task.assignedTo.username}">担当者</td>
 			<td th:text="${task.createdBy.username}">作成者</td>
-            <td th:text="${task.completed ? '✅' : '⏳'}"></td>
+			<td>
+			    <form th:action="@{'/user/tasks/toggle/' + ${task.id}}" method="post" style="display:inline;">
+			        <button type="submit" th:text="${task.completed ? '✅ 完了' : '⏳ 未完了'}"></button>
+			    </form>
+			</td>
 				<td>
 				    <a th:href="@{/user/tasks/edit/{id}(id=${task.id})}">編集</a>
 				     |
