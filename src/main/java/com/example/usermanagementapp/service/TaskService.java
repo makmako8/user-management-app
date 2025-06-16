@@ -44,7 +44,9 @@ public class TaskService {
     public Optional<Task> findById(Long id) {
         return taskRepository.findById(id);
     }
-
+    public List<Task> getTasksAssignedToOrdered(AppUser user) {
+        return taskRepository.findByAssignedToOrderByCreatedAtAsc(user);
+    }
 
     public List<Task> getTasksAssignedTo(String username) {
         AppUser user = userRepository.findByUsername(username)

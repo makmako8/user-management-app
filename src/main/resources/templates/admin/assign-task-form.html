@@ -1,0 +1,12 @@
+<form th:action="@{/admin/assign-task}" method="post" th:object="${task}">
+    <label>タイトル: <input type="text" th:field="*{title}" /></label><br/>
+    <label>説明: <textarea th:field="*{description}"></textarea></label><br/>
+
+    <label>担当ユーザー:
+        <select name="userId">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
+        </select>
+    </label><br/>
+
+    <button type="submit">課題を割り当てる</button>
+</form>

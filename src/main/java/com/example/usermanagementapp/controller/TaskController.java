@@ -1,5 +1,6 @@
 package com.example.usermanagementapp.controller;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,44 +76,27 @@ public class TaskController {
         return "user/tasks";
     }
 
-
-    @GetMapping("/user/tasks/edit/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public String showEditForm(@PathVariable Long id, Model model, Authentication authentication) {
-        Task task = taskService.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("タスクが見つかりません: ID = " + id));
-        String currentUsername = authentication.getName();
-        if (!task.getAssignedTo().getUsername().equals(currentUsername)) {
-            return "redirect:/user/tasks?error=not_authorized";
-        }
-        model.addAttribute("task", task);
-        return "user/task-form"; // フォームを使いまわし
-    }
-    
     @PostMapping("/user/tasks/edit/{id}")
     @PreAuthorize("hasRole('USER')")
-    public String updateTask(@PathVariable Long id,
-                             @ModelAttribute("task") Task updatedTask,
-                             Authentication authentication) {
-    	   System.out.println("📝 編集内容: " + updatedTask); // ← これで値確認
-    	  
-    	   Task task = taskService.findById(id)
-    		        .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+    public String updateOwnTask(@PathVariable Long id, @ModelAttribute Task updatedTask, Authentication authentication) {
+        Task existingTask = taskService.findById(id)
+            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
 
-    		    String username = authentication.getName();
-    		    if (!task.getAssignedTo().getUsername().equals(username)) {
-    		        return "redirect:/user/tasks?error=unauthorized";
-    		    }
+        String username = authentication.getName();
+        if (!existingTask.getAssignedTo().getUsername().equals(username)) {
+            return "redirect:/user/tasks?error=not_authorized";
+        }
 
+        // 更新内容を反映（必要に応じてタイトルなどを個別で更新）
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
 
-    		    // 更新する内容のみセット
-    		    task.setTitle(updatedTask.getTitle());
-    		    task.setDescription(updatedTask.getDescription());
-    		    task.setCompleted(updatedTask.isCompleted());
+        taskService.assignTaskToUser(existingTask); // 保存
 
-        taskService.assignTaskToUser(task);
         return "redirect:/user/tasks";
     }
+
+
     @GetMapping("/user/tasks/delete/{id}")
     @PreAuthorize("hasRole('USER')")
     public String deleteTask(@PathVariable Long id, Authentication authentication) {
@@ -136,7 +120,7 @@ public class TaskController {
         if (!task.getAssignedTo().getUsername().equals(authentication.getName())) {
             return "redirect:/user/tasks?error=not_authorized";
         }
-
+     
         task.setCompleted(!task.isCompleted());
         taskService.assignTaskToUser(task);
         return "redirect:/user/tasks";
@@ -152,7 +136,7 @@ public class TaskController {
         AppUser user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません"));
 
-        List<Task> tasks;
+        List<Task> tasks = taskService.getTasksAssignedToOrdered(user); // ← RepositoryをService経由で使う
 
         // 状態とキーワードに応じて検索
         if ("completed".equals(status)) {
@@ -167,7 +151,7 @@ public class TaskController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
 
+        tasks.sort(Comparator.comparing(Task::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())));
         return "user/task-list";
     }
-
 }

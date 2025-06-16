@@ -1,0 +1,14 @@
+<h2 th:text="'ユーザー ' + ${user.username} + ' のタスク一覧'">ユーザーのタスク一覧</h2>
+
+<table>
+    <tr>
+        <th>タイトル</th>
+        <th>完了</th>
+        <th>作成日</th>
+    </tr>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.title}">タスクタイトル</td>
+        <td th:text="${task.completed ? '完了' : '未完了'}"></td>
+		<td th:text="${#temporals.format(task.createdAt, 'yyyy-MM-dd HH:mm')}">作成日</td>
+    </tr>
+</table>

@@ -2,12 +2,12 @@ package com.example.usermanagementapp.controller;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -68,6 +68,18 @@ public class AdminController {
         return "redirect:/admin/encode-password";
     }
 
+    @GetMapping("/users/{id}/tasks")
+    public String viewUserTasks(@PathVariable Long id, Model model) {
+        Optional<AppUser> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            return "error"; // または redirect:/admin/users に戻す
+        }
+        AppUser user = userOpt.get();
+        List<Task> tasks = taskRepository.findByAssignedTo(user);
+        model.addAttribute("user", user);
+        model.addAttribute("tasks", tasks);
+        return "admin/user-task-list"; // HTMLファイル名
+    }
 
     // ユーザー一覧表示
     @GetMapping("/users")
@@ -78,27 +90,22 @@ public class AdminController {
     }
     
     // GET: タスク割り当てフォーム表示（任意）
-    @GetMapping("/assign")
-    public String showAssignForm(Model model) {
+    @GetMapping("/assign-task")
+    public String showAssignTaskForm(Model model) {
         model.addAttribute("task", new Task());
         model.addAttribute("users", userRepository.findAll());
-        return "admin/assign-task";
+        return "admin/assign-task-form";
     }
     
     // POST: 他のユーザーにタスクを割り当て
-    @PostMapping("/assign")
-    public String assignTask(@ModelAttribute Task task, @RequestParam("userId") Long userId, Authentication authentication) {
-        AppUser assignedUser = userRepository.findById(userId).orElse(null);
-        if (assignedUser != null) {
-            String creatorUsername = authentication.getName();
-            AppUser creator = userRepository.findByUsername(creatorUsername)
-                .orElseThrow(() -> new UsernameNotFoundException("作成者が見つかりません: " + creatorUsername));
-            task.setAssignedTo(assignedUser);
-            task.setCreatedBy(creator);  // 作成者を明示的に設定
-            task.setCompleted(false);
-            taskService.assignTaskToUser(task); 
-        }
-       return "redirect:/admin/tasks/assign?success";
+    @PostMapping("/assign-task")
+    public String assignTask(@ModelAttribute Task task, @RequestParam Long userId) {
+        AppUser user = userRepository.findById(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません"));
+
+        task.setAssignedTo(user);
+        taskRepository.save(task);
+        return "redirect:/admin/users/" + user.getId() + "/tasks";
     }
   
     

@@ -1,12 +1,17 @@
 package com.example.usermanagementapp.entity;
+import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
 @Entity
 @Table(name = "task")
 public class Task {
@@ -20,6 +25,7 @@ public class Task {
 
     private String description;
     private boolean completed;
+    
     @ManyToOne
     @JoinColumn(name = "assigned_to") // ← DBの列名と一致
     private AppUser assignedTo;
@@ -27,7 +33,25 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "created_by")
     private AppUser createdBy;
+    
+    @CreationTimestamp  // Hibernateの自動設定（依存があれば）
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+
+    // 手動で設定したいとき用
+    public void setCreatedAtManually(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
     public Long getId() {
         return id;
     }

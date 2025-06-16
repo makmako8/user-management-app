@@ -11,6 +11,7 @@
             <span th:text="${task.title}"></span> - 
             <span th:text="${task.status}"></span>
 			<span th:text="${task.new}"></span>
+			<a th:if="${task.id != null}" th:href="@{'/user/tasks/edit/' + ${task.id}}">編集</a>
         </li>
     </ul>
     <a th:href="@{/user/tasks/new}">新規タスクへ</a>

@@ -15,8 +15,15 @@ public class Role {
     private Long id;
     @Column(name = "role_name", unique = true)
     private String roleName;
-
     
+    public Role() {
+        // デフォルトコンストラクタ（空）
+    }
+
+    public Role(Long id, String roleName) {
+        this.id = id;
+        this.roleName = roleName;
+    }
     public Long getId() {
         return id;
     }

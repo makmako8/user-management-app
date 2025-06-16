@@ -2,7 +2,6 @@ package com.example.usermanagementapp.entity;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,7 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -31,7 +29,7 @@ public class AppUser {
   
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "app_user_roles", // 中間テーブル名
+            name = "user_roles", // 中間テーブル名
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
         )
@@ -39,11 +37,13 @@ public class AppUser {
     // 必須：setter と getter
 
     private Set<Role> roles = new HashSet<>();
-    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Task> taskss = new HashSet<>();
-    
+
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
     public boolean isEnabled() {
         return enabled;
@@ -53,9 +53,7 @@ public class AppUser {
     }
 
     
-    public void setRoles(Set<Role> roles) {
-    	this.roles = roles; 
-    }
+
 
     public Long getId() {
         return id;
