@@ -1,7 +1,7 @@
 package com.example.usermanagementapp.controller;
-
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +48,7 @@ public class TaskController {
     @PreAuthorize("hasRole('USER')")
     public String showCreateForm(Model model) {
         model.addAttribute("task", new Task());
+        model.addAttribute("formMode", "new");
         return "user/task-form";
     }  
 
@@ -63,18 +64,16 @@ public class TaskController {
         task.setCompleted(false);
 
         taskService.assignTaskToUser(task);
+        Long taskId = task.getId(); // 保存後に ID が割り振られているか確認
+        if (taskId != null) {
+            return "redirect:/user/tasks/edit/" + taskId;
+        } else {
+            return "redirect:/user/tasks?error=saving_failed";
+        }
 
-        return "redirect:/user/tasks";
+       
     }
 
-
-    @GetMapping("/tasks")
-    public String showTasksForUser(Authentication authentication, Model model) {
-        String username = authentication.getName();
-        List<Task> tasks = taskService.getTasksAssignedTo(username);
-        model.addAttribute("tasks", tasks);
-        return "user/tasks";
-    }
 
     @PostMapping("/user/tasks/edit/{id}")
     @PreAuthorize("hasRole('USER')")
@@ -95,7 +94,32 @@ public class TaskController {
 
         return "redirect:/user/tasks";
     }
+    
+    @GetMapping("/user/tasks/edit/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+        model.addAttribute("task", task);
+        model.addAttribute("formMode", "edit");
+        return "user/task-form"; // ← 登録・編集共通のフォームページ
+    }
+    
+    @PostMapping("/user/tasks/save")
+    @PreAuthorize("hasRole('USER')")
+    public String saveTask(@ModelAttribute Task task, Authentication authentication) {
+        String username = authentication.getName();
+        AppUser user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません"));
 
+        task.setAssignedTo(user);
+        task.setCompleted(false);
+       
+
+        taskRepository.save(task); // ← これで task.getId() に値が入る
+
+        return "redirect:/user/tasks"; // ✅ 編集画面でなく一覧に戻す
+    }
 
     @GetMapping("/user/tasks/delete/{id}")
     @PreAuthorize("hasRole('USER')")
@@ -136,7 +160,8 @@ public class TaskController {
         AppUser user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません"));
 
-        List<Task> tasks = taskService.getTasksAssignedToOrdered(user); // ← RepositoryをService経由で使う
+
+        List<Task> tasks;
 
         // 状態とキーワードに応じて検索
         if ("completed".equals(status)) {
@@ -147,6 +172,11 @@ public class TaskController {
             tasks = taskRepository.findByAssignedToAndTitleContaining(user, keyword != null ? keyword : "");
         }
 
+        tasks.removeIf(Objects::isNull);
+        
+        model.addAttribute("task", new Task());
+        model.addAttribute("formMode", "new");
+        
         model.addAttribute("tasks", tasks);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);

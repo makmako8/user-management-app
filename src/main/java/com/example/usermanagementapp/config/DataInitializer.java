@@ -28,24 +28,42 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // ロール登録
-    	Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN");
-        if (!roleRepository.existsById(1L)) {
-            roleRepository.save(new Role(1L, "ROLE_ADMIN"));
+        // ロールが存在しなければ登録（ここでは ID は自動生成でもOK）
+        if (!roleRepository.existsByRoleName("ROLE_ADMIN")) {
+            roleRepository.save(new Role(null, "ROLE_ADMIN"));
         }
-        if (!roleRepository.existsById(2L)) {
-            roleRepository.save(new Role(2L, "ROLE_USER"));
+        if (!roleRepository.existsByRoleName("ROLE_USER")) {
+            roleRepository.save(new Role(null, "ROLE_USER"));
         }
+        // ロールを取得（登録後に確実に取得！）
+        // 登録後、もう一度取得（Optionalに対応）
+        Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
+        	    .orElseThrow(() -> new RuntimeException("ROLE_ADMIN が見つかりません"));
 
+        	System.out.println("adminRole: " + adminRole.getRoleName());
+       
         // 管理者ユーザー登録
         if (!userRepository.existsByUsername("admin")) {
             AppUser admin = new AppUser();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("adminpass"));
+            admin.setEnabled(true);
+            
             Set<Role> roles = new HashSet<>();
-            roles.add(adminRole);
-            admin.setRoles(roles); 
+            roles.add(adminRole);  
+            admin.setRoles(roles);
             userRepository.save(admin);
+                }
+     // ROLE_USERを取得
+        Role userRole = roleRepository.findByRoleName("ROLE_USER")
+            .orElseThrow(() -> new RuntimeException("ROLE_USER が見つかりません"));
+        if (!userRepository.existsByUsername("testuser7")) {
+            AppUser user = new AppUser();
+            user.setUsername("testuser7");
+            user.setPassword(passwordEncoder.encode("testpass7"));
+            user.setEnabled(true);
+            user.setRoles(Set.of(userRole)); // ロールを割り当てる
+            userRepository.save(user);
         }
     }
 }

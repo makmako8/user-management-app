@@ -5,10 +5,7 @@ package com.example.usermanagementapp.controller;
 
 
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,13 +49,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/admin/users-alt")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String showAllUsers(Model model) {
-        List<AppUser> users = userRepository.findAll();
-        model.addAttribute("users", users);
-        return "user-list";
-    }
+
 	@PostMapping("/login")
 	public String login(@RequestParam String username, @RequestParam String password, Model model) {
 	    if ("admin".equals(username) && "pass".equals(password)) {

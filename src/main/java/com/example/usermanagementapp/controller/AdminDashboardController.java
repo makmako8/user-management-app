@@ -4,15 +4,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 @Controller
-@RequestMapping("/user")
-public class UserHomeController {
+@RequestMapping("/admin")
+public class AdminDashboardController {
 	
-	
-    @GetMapping("/home")
-    @PreAuthorize("hasRole('USER')")
-    public String showHomePage() {
-        return "home"; // templates/home.html を表示
+    // 管理者ダッシュボード
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showAdminDashboard() {
+        return "admin/dashboard"; // templates/admin-dashboard.html を返す
     }
 
 }

@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.entity.AuditLog;
+import com.example.usermanagementapp.entity.Role;
 import com.example.usermanagementapp.entity.Task;
 import com.example.usermanagementapp.repository.AuditLogRepository;
 import com.example.usermanagementapp.repository.RoleRepository;
@@ -47,11 +48,7 @@ public class AdminController {
         this.auditLogRepository = auditLogRepository;
     }
 
-    // 管理者ダッシュボード
-    @GetMapping("/dashboard")
-    public String showAdminDashboard() {
-        return "admin/dashboard"; // templates/admin-dashboard.html を返す
-    }
+
     @PostMapping("/admin/save-password")
     @PreAuthorize("hasRole('ADMIN')")
     public String saveEncodedPassword(@RequestParam String username,
@@ -61,7 +58,16 @@ public class AdminController {
         user.setUsername(username);
         user.setPassword(hashedPassword);
         user.setEnabled(true);
-        user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER"))); // または ADMINも可
+        
+        Optional<Role> optionalRole = roleRepository.findByRoleName("ROLE_USER"); // または "ROLE_ADMIN"
+
+        if (optionalRole.isPresent()) {
+            user.setRoles(Set.of(optionalRole.get())); // ✅ 正しく取り出してセット
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "指定のロールが存在しません。");
+            return "redirect:/admin/encode-password";
+        }
+        
         userRepository.save(user);
 
         redirectAttributes.addFlashAttribute("successMessage", username + " を保存しました！");
@@ -80,7 +86,13 @@ public class AdminController {
         model.addAttribute("tasks", tasks);
         return "admin/user-task-list"; // HTMLファイル名
     }
-
+    @GetMapping("/admin/users-alt")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showAllUsers(Model model) {
+        List<AppUser> users = userRepository.findAll();
+        model.addAttribute("users", users);
+        return "user-list";
+    }
     // ユーザー一覧表示
     @GetMapping("/users")
     public String showUserList(Model model) {

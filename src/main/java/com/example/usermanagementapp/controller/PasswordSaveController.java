@@ -1,6 +1,5 @@
 package com.example.usermanagementapp.controller;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,11 +41,14 @@ public class PasswordSaveController {
         user.setPassword(hashedPassword);
         user.setEnabled(true);
 
-        Role defaultRole = roleRepository.findByRoleName("ROLE_USER");
-        Set<Role> roles = new HashSet<>();
-        roles.add(defaultRole);
-        user.setRoles(roles);
-
+        Optional <Role> optionalRole = roleRepository.findByRoleName("ROLE_USER");
+        if (optionalRole.isPresent()) {
+            user.setRoles(Set.of(optionalRole.get())); // ✅ OK！
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "ROLE_USER が見つかりません。");
+            return "redirect:/admin/encode-password";
+        }
+ 
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("successMessage", username + " を保存しました！");
         return "redirect:/admin/encode-password";

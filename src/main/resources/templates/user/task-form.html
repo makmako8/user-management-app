@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>タスク編集</title>
+    <title th:text="${task.id == null} ? '新規タスク作成' : 'タスク編集'">タスクフォーム</title>
     <meta charset="UTF-8" />
 </head>
 <body>
-<h2>タスク編集</h2>
+<h2 th:text="${task.id == null} ? '新しいタスクを作成' : 'タスクを編集'"></h2>
 
-<form th:action="@{'/user/tasks/edit/' + ${task.id}}" th:object="${task}" method="post">
+<form th:action="${task.id} == null ? @{/user/tasks/new} : @{/user/tasks/edit/{id}(id=${task.id})}"
+      method="post"
+      th:object="${task}">
+
     <input type="hidden" th:field="*{id}" />
-    
+
     <label>タイトル:</label>
     <input type="text" th:field="*{title}" /><br/>
 

@@ -1,5 +1,6 @@
 package com.example.usermanagementapp.service;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import com.example.usermanagementapp.entity.AppUser;
 import com.example.usermanagementapp.entity.Role;
 import com.example.usermanagementapp.repository.RoleRepository;
 import com.example.usermanagementapp.repository.UserRepository;
-
 
 @Service
 public class UserService {
@@ -34,22 +34,25 @@ public class UserService {
 	     }
 
 	// パスワードのエンコード
-		  Role userRole = roleRepository.findByRoleName(roleName);
-	      if (userRole == null) {
-	           userRole = new Role();
-	           userRole.setRoleName("ROLE_USER");
-	           userRole = roleRepository.save(userRole); // ← saveして、永続化されたエンティティを使う
-	      }
+		  Optional<Role> optionalRole = roleRepository.findByRoleName(roleName);
+		  Role role;
+		  if (optionalRole.isPresent()) {
+			    role = optionalRole.get();
+			} else {
+			    role = new Role();
+			    role.setRoleName(roleName);
+			    role = roleRepository.save(role);
+			}
 	       AppUser user = new AppUser();
 	       user.setUsername(username);
 	       user.setPassword(passwordEncoder.encode(rawPassword));
-	       user.setRoles(Set.of(userRole));
+	       user.setRoles(Set.of(role));
 
         // パスワードをエンコード
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // ロールをセット（Setで渡す）
-        user.setRoles(Set.of(userRole));
+        user.setRoles(Set.of(role));
         // ユーザーを保存
         userRepository.save(user);
     }
@@ -60,22 +63,25 @@ public class UserService {
 	     }
 
 	// パスワードのエンコード
-		  Role userRole = roleRepository.findByRoleName(roleName);
-	      if (userRole == null) {
-	           userRole = new Role();
-	           userRole.setRoleName("ROLE_USER");
-	           userRole = roleRepository.save(userRole); // ← saveして、永続化されたエンティティを使う
-	      }
+		  Optional<Role> optionalRole = roleRepository.findByRoleName(roleName);
+		  Role role;
+		  if (optionalRole.isPresent()) {
+		      role = optionalRole.get();
+		  } else {
+		      role = new Role();
+		      role.setRoleName(roleName);
+		      role = roleRepository.save(role);
+		  }
 	       AppUser user = new AppUser();
 	       user.setUsername(username);
 	       user.setPassword(passwordEncoder.encode(rawPassword));
-	       user.setRoles(Set.of(userRole));
+	       user.setRoles(Set.of(role));
 
         // パスワードをエンコード
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // ロールをセット（Setで渡す）
-        user.setRoles(Set.of(userRole));
+        user.setRoles(Set.of(role));
         // ユーザーを保存
         userRepository.save(user);
     }
@@ -88,11 +94,14 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
 
-        Role role = roleRepository.findByRoleName(roleName);
-        if (role == null) {
+        Optional<Role> optionalRole = roleRepository.findByRoleName(roleName);
+        Role role;
+        if (optionalRole.isPresent()) {
+            role = optionalRole.get();
+        } else {
             role = new Role();
             role.setRoleName(roleName);
-            roleRepository.save(role);
+            role = roleRepository.save(role);
         }
         user.setRoles(Set.of(role));
         userRepository.save(user);

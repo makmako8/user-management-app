@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -20,6 +19,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
     private CustomLoginSuccessHandler customLoginSuccessHandler;
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
     	  return new BCryptPasswordEncoder(); 
@@ -30,11 +30,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(customUserDetailsService) // ← 認証に使うサービスを登録
             .passwordEncoder(passwordEncoder());
     }
-    @Bean
-    public AuthenticationSuccessHandler customSuccessHandler() {
-        return new CustomLoginSuccessHandler();
-    }
-    
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -55,9 +50,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.headers().frameOptions().disable();
     }
-
-
-
-    
-
 }
