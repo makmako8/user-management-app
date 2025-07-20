@@ -1,4 +1,5 @@
 package com.example.usermanagementapp.entity;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,6 +14,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Table(name = "app_user") 
 public class AppUser {
@@ -22,7 +25,13 @@ public class AppUser {
     
     @Column(unique = true)
     private String username;
-    
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
     private String password;
     private boolean enabled;
@@ -35,6 +44,8 @@ public class AppUser {
         )
     // ゲッターとセッター
     // 必須：setter と getter
+    
+
 
     private Set<Role> roles = new HashSet<>();
 

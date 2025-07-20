@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>進捗管理表</title>
+</head>
+<body>
+<h1>進捗管理表</h1>
+
+<div th:each="entry : ${ {'1ヶ月目':month1Items, '2ヶ月目':month2Items, '3ヶ月目':month3Items}.entrySet() }">
+    <h2 th:text="${entry.key}"></h2> <!-- 月の表示 -->
+    <div th:each="item : ${entry.value}"> <!-- 各月の項目表示 -->
+        <form th:action="@{/user/update}" method="post">
+			<!-- hiddenフィールド追加 -->
+
+			<input type="checkbox" name="completed" value="true"
+			         th:checked="${item.completed} ? 'checked' : null"
+			         onchange="this.form.submit();"/>
+            <input type="hidden" name="id" th:value="${item.id}"/>
+            <label th:text="${item.title}"></label><br/>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

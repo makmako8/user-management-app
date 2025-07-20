@@ -9,19 +9,21 @@
 
 	<table border="1">
 	    <tr>
-	        <th>ID</th>
+	        <th>登録日</th>
 	        <th>ユーザー名</th>
 	        <th>有効か？</th>
-	        <th>ロール</th>
+	 		<th>タスクステイタス</th>
+			<th>役割</th>
 			<th>操作</th>
-	    </tr>
-	    <tr th:each="user : ${users}">
-	        <td th:text="${user.id}"></td>
+			<th>タスク一覧</th>
+				    </tr>
+	    <tr th:each="user : ${users}" th:if="${user != null}">
+			<td th:if="${user != null and user.createdAt != null}"
+			    th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}"></td>
+
+			<td th:if="${user == null or user.createdAt == null}">不明</td>
 	        <td th:text="${user.username}"></td>
 	        <td th:text="${user.enabled}"></td>
-			<td>
-				<td th:text="${user.enabled}"></td>
-			</td>
 			<td>
 			    <a th:href="@{'/admin/users/' + ${user.id} + '/tasks'}">📋 すべてのタスク</a><br>
 			    <a th:href="@{'/admin/users/' + ${user.id} + '/tasks?filter=completed'}">✅ 完了タスク</a><br>
@@ -36,9 +38,6 @@
 			<td>
 			    <a th:href="@{'/admin/users/edit/' + ${user.id}}">✏️ 編集</a> |
 			    <a th:href="@{'/admin/users/delete/' + ${user.id}}" onclick="return confirm('本当に削除しますか？')">🗑️ 削除</a>
-			</td>
-			<td>
-				
 			</td>
 			<td>
 				<a th:href="@{'/admin/users/' + ${user.id} + '/tasks'}">📋 タスク一覧</a>

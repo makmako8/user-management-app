@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
 </head>
 <body>
-<h2>あなたのタスク一覧</h2>
+<h2>[[${#httpServletRequest.remoteUser}]] のタスク一覧</h2>
 
 <a th:href="@{/user/tasks/new}">＋ 新しいタスクを作成</a>
 <br>
@@ -23,18 +23,17 @@
 
     <table border="1">
         <tr>
-            <th>ID</th>
             <th>タイトル</th>
             <th>説明</th>
 			<th>担当者</th>
 			<th>作成者</th>
-            <th>完了</th>
+			<th>完了</th>
+			<th>作成日</th>
 			<th>操作</th>
         </tr>
 
         <tr th:each="task : ${tasks}" th:if="${task != null}">
-         <td th:text="${task != null and task.id != null ? task.id : 'N/A'}">ID</td>
-		 <td th:text="${task != null and task.title != null ? task.title : '（無題）'}">タイトル</td>
+  		 <td th:text="${task != null and task.title != null ? task.title : '（無題）'}">タイトル</td>
          <td th:text="${task.description}">説明</td>
 		 <td th:text="${task != null and task.assignedTo != null ? task.assignedTo.username : '未割当'}">担当者</td>
 		 <td th:text="${task != null and task.createdBy != null ? task.createdBy.username : '不明'}">作成者</td>
@@ -43,6 +42,7 @@
 				    <button type="submit" th:text="${task.completed != null and task.completed ? '✅' : '⏳'}"></button>
 				</form>
 			</td>
+			<td th:text="${#temporals.format(task.createdAt, 'yyyy-MM-dd HH:mm')}">作成日</td>
 			<td>
 			<a th:href="@{/user/tasks/edit/{id}(id=${task.id})}"> 編集</a>|
 			    <a th:href="@{/user/tasks/delete/{id}(id=${task.id})}"

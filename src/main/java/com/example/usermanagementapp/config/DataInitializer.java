@@ -65,5 +65,21 @@ public class DataInitializer implements CommandLineRunner {
             user.setRoles(Set.of(userRole)); // ロールを割り当てる
             userRepository.save(user);
         }
+           if (!userRepository.existsByUsername("testuser8")) {
+            AppUser user = new AppUser();
+            user.setUsername("testuser8");
+            user.setPassword(passwordEncoder.encode("testpass8"));
+            user.setEnabled(true);
+            user.setRoles(Set.of(userRole)); // ロールを割り当てる
+            userRepository.save(user);
+        }
+           if (!userRepository.existsByUsername("testuser9")) {
+               AppUser user = new AppUser();
+               user.setUsername("testuser9");
+               user.setPassword(passwordEncoder.encode("testpass9"));
+               user.setEnabled(true);
+               user.setRoles(Set.of(userRole)); // ロールを割り当てる
+               userRepository.save(user);
+           }
     }
 }

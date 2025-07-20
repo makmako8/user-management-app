@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>課題一覧</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h2>ユーザー設定</h2>
+<p>ユーザー名: [[${user.username}]]</p>
+
+<form th:action="@{/admin/user-settings/save}" method="post">
+    <input type="hidden" th:field="*{id}" />
+    
+    <label>ロール:</label>
+    <select th:field="*{roleName}">
+        <option value="ROLE_USER">一般ユーザー</option>
+        <option value="ROLE_ADMIN">管理者</option>
+    </select>
+
+
+	</table>
+</form>
+<button type="submit">保存</button>
+<h2>ロール変更（システム設定）</h2>
+
+<table>
+  <tr>
+    <th>ユーザー名</th>
+    <th>現在のロール</th>
+    <th>変更後のロール</th>
+    <th>操作</th>
+  </tr>
+  <tr th:each="user : ${users}">
+    <td th:text="${user.username}"></td>
+    <td th:text="${#lists.join(user.roles.?[roleName], ',')}">ROLE_USER</td>
+    <td>
+      <form th:action="@{/admin/system-settings/change-role}" method="post">
+        <input type="hidden" name="userId" th:value="${user.id}" />
+        <select name="role">
+          <option value="ROLE_USER">一般ユーザー</option>
+          <option value="ROLE_ADMIN">管理者</option>
+        </select>
+        <button type="submit">変更</button>
+      </form>
+    </td>
+  </tr>
+</body>
+</html>
