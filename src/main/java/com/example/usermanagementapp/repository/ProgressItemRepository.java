@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.usermanagementapp.entity.ProgressItem;
 
 public interface ProgressItemRepository extends JpaRepository<ProgressItem, Long> {
-    List<ProgressItem> findByCategory(String category);
+    List<ProgressItem> findByCategoryAndUsername(String category, String username);
 }

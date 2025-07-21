@@ -24,6 +24,9 @@ public class ProgressItem {
     private String category;    // カテゴリ（例：1ヶ月目、2ヶ月目）
     private boolean completed;  // 完了フラグ
     
+    // ★ ユーザーとの紐づけ
+    private String username;
+    
     public Long getId() {
     	return id;
     }
@@ -35,6 +38,12 @@ public class ProgressItem {
     }
     public void setTitle(String title) {
     	this.title =title;
+    }
+    public String getUsername() {
+    	return username;
+    }
+    public void setUsername(String username) {
+    	this.username =username;
     }
 }
 
