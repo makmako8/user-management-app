@@ -2,39 +2,57 @@ package com.example.usermanagementapp.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.usermanagementapp.repository.UserRepository;
+import com.example.usermanagementapp.security.CustomAuthenticationProvider;
+import com.example.usermanagementapp.security.JwtRequestFilter;
+import com.example.usermanagementapp.security.JwtUtil;
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	@Lazy
+public class SecurityConfig{
+	
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final JwtRequestFilter jwtRequestFilter;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-    @Autowired
-    private CustomLoginSuccessHandler customLoginSuccessHandler;
+    public SecurityConfig(
+            CustomAuthenticationProvider customAuthenticationProvider,
+            CustomLoginSuccessHandler customLoginSuccessHandler,
+            JwtRequestFilter jwtRequestFilter,
+            JwtUtil jwtUtil,
+            UserRepository userRepository) {
+        this.customAuthenticationProvider = customAuthenticationProvider;
+        this.customLoginSuccessHandler = customLoginSuccessHandler;
+        this.jwtRequestFilter = jwtRequestFilter;
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+    }
     
     @Bean
-    public PasswordEncoder passwordEncoder() {
-    	  return new BCryptPasswordEncoder(); 
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder =
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.authenticationProvider(customAuthenticationProvider);
+        return builder.build();
     }
     
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customUserDetailsService) // ← 認証に使うサービスを登録
-            .passwordEncoder(passwordEncoder());
-    }
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+        	.csrf().disable()
+            .headers().frameOptions().disable().and()
             .authorizeRequests()
-                .antMatchers("/register","/login", "/css/**", "/js/**","/h2-console/**").permitAll()
+                .antMatchers("/register", "/login", "/css/**", "/js/**", "/h2-console/**", "/authenticate").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/**").hasRole("USER")
                 .anyRequest().authenticated()
@@ -44,10 +62,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(customLoginSuccessHandler)
             .and()
                 .logout()
-                .permitAll();
+                .permitAll()
+            .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
 
-        // H2コンソール用の設定
-        http.csrf().disable();
-        http.headers().frameOptions().disable();
+
+        http.authenticationProvider(customAuthenticationProvider);
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
+
 }

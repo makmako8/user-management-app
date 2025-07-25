@@ -13,7 +13,7 @@ public class AdminDashboardController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public String showAdminDashboard() {
-        return "admin/dashboard"; // templates/admin-dashboard.html を返す
+        return "admin/dashboard"; // templates/admin/dashboard.html を返す
     }
 
 }

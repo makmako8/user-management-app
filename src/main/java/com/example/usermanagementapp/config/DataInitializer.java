@@ -1,7 +1,6 @@
 package com.example.usermanagementapp.config;
 
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.boot.CommandLineRunner;
@@ -25,61 +24,43 @@ public class DataInitializer implements CommandLineRunner {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     @Override
     public void run(String... args) {
-        // ロールが存在しなければ登録（ここでは ID は自動生成でもOK）
-        if (!roleRepository.existsByRoleName("ROLE_ADMIN")) {
-            roleRepository.save(new Role(null, "ROLE_ADMIN"));
-        }
-        if (!roleRepository.existsByRoleName("ROLE_USER")) {
-            roleRepository.save(new Role(null, "ROLE_USER"));
-        }
-        // ロールを取得（登録後に確実に取得！）
-        // 登録後、もう一度取得（Optionalに対応）
-        Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
-        	    .orElseThrow(() -> new RuntimeException("ROLE_ADMIN が見つかりません"));
+        initializeRoles();
+        initializeUsers();
+    }
 
-        	System.out.println("adminRole: " + adminRole.getRoleName());
-       
-        // 管理者ユーザー登録
-        if (!userRepository.existsByUsername("admin")) {
-            AppUser admin = new AppUser();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("adminpass"));
-            admin.setEnabled(true);
-            
-            Set<Role> roles = new HashSet<>();
-            roles.add(adminRole);  
-            admin.setRoles(roles);
-            userRepository.save(admin);
-                }
-     // ROLE_USERを取得
+    private void initializeRoles() {
+        createRoleIfNotExists("ROLE_ADMIN");
+        createRoleIfNotExists("ROLE_USER");
+    }
+    
+    private void initializeUsers() {
+        Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
+                .orElseThrow(() -> new RuntimeException("ROLE_ADMINが見つかりません"));
+        createUserIfNotExists("admin", "adminpass", adminRole);
+
         Role userRole = roleRepository.findByRoleName("ROLE_USER")
-            .orElseThrow(() -> new RuntimeException("ROLE_USER が見つかりません"));
-        if (!userRepository.existsByUsername("testuser7")) {
+                .orElseThrow(() -> new RuntimeException("ROLE_USERが見つかりません"));
+        createUserIfNotExists("testuser7", "testpass7", userRole);
+        createUserIfNotExists("testuser8", "testpass8", userRole);
+        createUserIfNotExists("testuser9", "testpass9", userRole);
+    }
+
+    private void createRoleIfNotExists(String roleName) {
+        if (!roleRepository.existsByRoleName(roleName)) {
+            roleRepository.save(new Role(null, roleName));
+        }
+    }
+
+    private void createUserIfNotExists(String username, String password, Role role) {
+        if (!userRepository.existsByUsername(username)) {
             AppUser user = new AppUser();
-            user.setUsername("testuser7");
-            user.setPassword(passwordEncoder.encode("testpass7"));
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
             user.setEnabled(true);
-            user.setRoles(Set.of(userRole)); // ロールを割り当てる
+            user.setRoles(Set.of(role));
             userRepository.save(user);
         }
-           if (!userRepository.existsByUsername("testuser8")) {
-            AppUser user = new AppUser();
-            user.setUsername("testuser8");
-            user.setPassword(passwordEncoder.encode("testpass8"));
-            user.setEnabled(true);
-            user.setRoles(Set.of(userRole)); // ロールを割り当てる
-            userRepository.save(user);
-        }
-           if (!userRepository.existsByUsername("testuser9")) {
-               AppUser user = new AppUser();
-               user.setUsername("testuser9");
-               user.setPassword(passwordEncoder.encode("testpass9"));
-               user.setEnabled(true);
-               user.setRoles(Set.of(userRole)); // ロールを割り当てる
-               userRepository.save(user);
-           }
     }
 }
