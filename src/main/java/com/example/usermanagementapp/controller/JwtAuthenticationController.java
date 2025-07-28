@@ -1,10 +1,11 @@
 package com.example.usermanagementapp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,13 +29,21 @@ public class JwtAuthenticationController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws AuthenticationException {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
-        );
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authRequest) {
+        System.out.println("🔑 リクエストユーザー名：" + authRequest.getUsername());
+        try {
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            System.out.println("❌ 認証失敗");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+
+        System.out.println("✅ トークン生成成功：" + jwt);
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }

@@ -2,6 +2,7 @@ package com.example.usermanagementapp.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,7 +38,7 @@ public class SecurityConfig{
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
     }
-    
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder =
@@ -48,30 +49,51 @@ public class SecurityConfig{
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        //フォームログインを使うページ
         http
-        	.csrf().disable()
-            .headers().frameOptions().disable().and()
+            .antMatcher("/**").csrf().disable()
             .authorizeRequests()
-                .antMatchers("/register", "/login", "/css/**", "/js/**", "/h2-console/**", "/authenticate").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/authenticate").permitAll() 
+                .antMatchers("/login", "/css/**", "/js/**").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/**").authenticated()
                 .antMatchers("/user/**").hasRole("USER")
                 .anyRequest().authenticated()
             .and()
-                .formLogin()
+            .formLogin()
                 .loginPage("/login")
                 .successHandler(customLoginSuccessHandler)
             .and()
-                .logout()
-                .permitAll()
+            .logout().permitAll()
             .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
-
-
-        http.authenticationProvider(customAuthenticationProvider);
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED); // ←フォームログイン（セッション有効）
 
         return http.build();
     }
+
+    @Bean
+    @Order(1) // JWT APIを優先
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+
+        // APIはJWTで認証、完全Stateless
+        http
+            .antMatcher("/api/**").csrf().disable()
+            .authorizeRequests()
+                .antMatchers("/authenticate").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+            .and()
+            .exceptionHandling().and()
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // ←JWT（セッション無効）
+            .and()
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
 
 }

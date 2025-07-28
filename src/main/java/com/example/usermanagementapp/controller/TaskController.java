@@ -78,8 +78,8 @@ public class TaskController {
     @PostMapping("/user/tasks/edit/{id}")
     @PreAuthorize("hasRole('USER')")
     public String updateOwnTask(@PathVariable Long id, @ModelAttribute Task updatedTask, Authentication authentication) {
-        Task existingTask = taskService.findById(id)
-            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+        Task existingTask = taskService.findById(id);
+   
 
         String username = authentication.getName();
         if (!existingTask.getAssignedTo().getUsername().equals(username)) {
@@ -124,8 +124,10 @@ public class TaskController {
     @GetMapping("/user/tasks/delete/{id}")
     @PreAuthorize("hasRole('USER')")
     public String deleteTask(@PathVariable Long id, Authentication authentication) {
-        Task task = taskService.findById(id)
-            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+        Task task = taskService.findById(id);
+        if (task == null) {
+            throw new RuntimeException("タスクが見つかりません");
+        }
 
         String currentUsername = authentication.getName();
         if (!task.getAssignedTo().getUsername().equals(currentUsername)) {
@@ -138,13 +140,15 @@ public class TaskController {
     @PostMapping("/user/tasks/toggle/{id}")
     @PreAuthorize("hasRole('USER')")
     public String toggleTaskCompletion(@PathVariable Long id, Authentication authentication) {
-        Task task = taskService.findById(id)
-            .orElseThrow(() -> new RuntimeException("タスクが見つかりません"));
+        Task task = taskService.findById(id);
+        if (task == null) {
+            throw new RuntimeException("タスクが見つかりません");
+        }
 
         if (!task.getAssignedTo().getUsername().equals(authentication.getName())) {
             return "redirect:/user/tasks?error=not_authorized";
         }
-     
+
         task.setCompleted(!task.isCompleted());
         taskService.assignTaskToUser(task);
         return "redirect:/user/tasks";
@@ -184,4 +188,5 @@ public class TaskController {
         tasks.sort(Comparator.comparing(Task::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())));
         return "user/task-list";
     }
+    
 }

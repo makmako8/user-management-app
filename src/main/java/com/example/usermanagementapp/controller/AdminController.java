@@ -8,10 +8,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.usermanagementapp.entity.AppUser;
@@ -31,8 +32,8 @@ import com.example.usermanagementapp.repository.TaskRepository;
 import com.example.usermanagementapp.repository.UserRepository;
 import com.example.usermanagementapp.service.TaskService;
 
-@Controller
-@RequestMapping("/admin")
+@RestController
+@RequestMapping("/api")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 	@Autowired
@@ -96,7 +97,7 @@ public class AdminController {
         redirectAttributes.addFlashAttribute("success", "ロールを更新しました");
         return "redirect:/admin/users";
     }
-    @GetMapping("/users/{id}/tasks")
+    @GetMapping("/admin/users/{id}/tasks")
     public String viewUserTasks(@PathVariable Long id, Model model) {
         Optional<AppUser> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
@@ -116,7 +117,7 @@ public class AdminController {
         return "user-list";
     }
     // ユーザー一覧表示
-    @GetMapping("/users")
+    @GetMapping("/admin/users")
     public String showUserList(Model model) {
         List<AppUser> users = userRepository.findAll();
         users.removeIf(Objects::isNull);
@@ -125,7 +126,7 @@ public class AdminController {
     }
     
     // GET: タスク割り当てフォーム表示（任意）
-    @GetMapping("/assign-task")
+    @GetMapping("/admin/assign-task")
     public String showAssignTaskForm(Model model) {
         model.addAttribute("task", new Task());
         model.addAttribute("users", userRepository.findAll());
@@ -133,7 +134,7 @@ public class AdminController {
     }
     
     // POST: 他のユーザーにタスクを割り当て
-    @PostMapping("/assign-task")
+    @PostMapping("/admin/assign-task")
     public String assignTask(@ModelAttribute Task task, Authentication authentication) {
     	   String adminUsername = authentication.getName();
     	    AppUser admin = userRepository.findByUsername(adminUsername)
@@ -146,7 +147,7 @@ public class AdminController {
   
     
     // ユーザー編集フォーム表示
-    @GetMapping("/users/edit/{id}")
+    @GetMapping("/admin/users/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         AppUser user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ユーザーが見つかりません: " + id));
@@ -156,7 +157,7 @@ public class AdminController {
     }
     
  // ✅ 差分ログ + 監査ログ保存付きユーザー編集処理
-    @PostMapping("/users/edit/{id}")
+    @PostMapping("/admin/users/edit/{id}")
     public String updateUser(@PathVariable Long id, @ModelAttribute AppUser formUser) {
         AppUser existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
@@ -195,7 +196,12 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> adminHome(Authentication authentication) {
+        String username = authentication.getName();
+        return ResponseEntity.ok("管理者 " + username + " としてログインしています。");
+    }
     
     
 }

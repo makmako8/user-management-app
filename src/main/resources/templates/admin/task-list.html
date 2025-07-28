@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>課題一覧</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<h2>[[${#httpServletRequest.remoteUser}]] のタスク一覧</h2>
+<div th:each="task : ${tasks}">
+  <a th:href="@{/admin/tasks/{id}/progress(id=${task.id})}" th:text="${task.title}">タスク名</a>
+</div>
+<a th:href="@{/admin/tasks/new}">新しいタスク作成</a>
+<a th:href="@{/admin/tasks/new}">＋ 新しいタスクを作成</a>
+<br>
+<!-- 🔍 検索フォーム -->
+
+    <input type="text" name="keyword" placeholder="タイトルで検索" th:value="${keyword}" />
+    <select name="status">
+        <option value="">すべて</option>
+        <option value="completed" th:selected="${status == 'completed'}">完了</option>
+        <option value="incomplete" th:selected="${status == 'incomplete'}">未完了</option>
+    </select>
+    <button type="submit">検索</button>
+</form>
+<br>
+
+    <table border="1">
+        <tr>
+            <th>タイトル</th>
+            <th>説明</th>
+			<th>担当者</th>
+			<th>作成者</th>
+			<th>完了</th>
+			<th>作成日</th>
+			<th>操作</th>
+        </tr>
+
+        <tr th:each="task : ${tasks}" th:if="${task != null}">
+  		 <td th:text="${task != null and task.title != null ? task.title : '（無題）'}">タイトル</td>
+         <td th:text="${task.description}">説明</td>
+		 <td th:text="${task != null and task.assignedTo != null ? task.assignedTo.username : '未割当'}">担当者</td>
+		 <td th:text="${task != null and task.createdBy != null ? task.createdBy.username : '不明'}">作成者</td>
+			<td>
+				<form th:if="${task != null and task.id != null}" th:action="@{'/admin/tasks/toggle/' + ${task.id}}" method="post" style="display:inline;">
+				    <button type="submit" th:text="${task.completed != null and task.completed ? '✅' : '⏳'}"></button>
+				</form>
+			</td>
+			<td th:text="${#temporals.format(task.createdAt, 'yyyy-MM-dd HH:mm')}">作成日</td>
+			<td>
+			<a th:href="@{/admin/tasks/edit/{id}(id=${task.id})}"> 編集</a>|
+			    <a th:href="@{/admin/tasks/delete/{id}(id=${task.id})}"
+			       onclick="return confirm('本当に削除しますか？');">削除</a>
+			</td>
+        </tr>
+    </table>
+
+	<a th:href="@{/admin/tasks}">← 戻る（一覧）</a>
+
+	 どこからでもホームに戻れる 
+	<a th:href="@{/admindashboard}">🏠 ホーム</a>
+</body>
+</html>
