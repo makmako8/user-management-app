@@ -36,8 +36,10 @@
 				</ul>
 	        </td>
 			<td>
-			    <a th:href="@{'/admin/users/edit/' + ${user.id}}">✏️ 編集</a> |
-			    <a th:href="@{'/admin/users/delete/' + ${user.id}}" onclick="return confirm('本当に削除しますか？')">🗑️ 削除</a>
+				<a th:href="@{/admin/users/{id}/tasks(id=${user.id})}">タスク一覧</a>
+				<a th:href="@{/admin/users/edit/{id}(id=${user.id})}">編集</a>
+				<a th:href="@{/admin/users/delete/{id}(id=${user.id})}" 
+				   onclick="return confirm('本当に削除しますか？')">削除</a>
 			</td>
 			<td>
 				<a th:href="@{'/admin/users/' + ${user.id} + '/tasks'}">📋 タスク一覧</a>

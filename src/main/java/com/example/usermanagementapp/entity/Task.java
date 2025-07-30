@@ -3,10 +3,10 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -26,12 +26,11 @@ public class Task {
     private String description;
     private boolean completed;
     
-    @ManyToOne
-    @JoinColumn(name = "assigned_to") // ← DBの列名と一致
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private AppUser assignedTo;
     
-    @ManyToOne
-    @JoinColumn(name = "created_by")
+    @ManyToOne(fetch = FetchType.LAZY)
     private AppUser createdBy;
     
     @CreationTimestamp  // Hibernateの自動設定（依存があれば）

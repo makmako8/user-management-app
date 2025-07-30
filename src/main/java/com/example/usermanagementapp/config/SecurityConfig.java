@@ -68,7 +68,7 @@ public class SecurityConfig{
             .logout().permitAll()
             .and()
             .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED); // ←フォームログイン（セッション有効）
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED); // ←フォームログイン（セッション有効）
 
         return http.build();
     }
@@ -83,10 +83,11 @@ public class SecurityConfig{
             .authorizeRequests()
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
-                .antMatchers("/api/user/**").hasRole("USER")
+                .antMatchers("/api/user/**").hasAnyRole("ADMIN","USER")
                 .anyRequest().authenticated()
             .and()
-            .exceptionHandling().and()
+            .exceptionHandling()
+            .and()
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // ←JWT（セッション無効）
             .and()

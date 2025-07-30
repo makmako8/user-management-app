@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>タスク編集</title>
+</head>
+<body>
+    <h2>タスク編集</h2>
+    <form th:action="@{/admin/tasks/edit/{id}(id=${task.id})}" method="post">
+        <label>タイトル:</label>
+        <input type="text" name="title" th:value="${task.title}"/><br/>
+
+        <label>説明:</label>
+        <textarea name="description" th:text="${task.description}"></textarea><br/>
+
+        <label>完了:</label>
+        <input type="checkbox" name="completed" th:checked="${task.completed}"/><br/>
+
+        <button type="submit">保存</button>
+    </form>
+    <a th:href="@{/admin/users/{id}/tasks(id=${task.assignedTo.id})}">戻る</a>
+</body>
+</html>
